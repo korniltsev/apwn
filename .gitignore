@@ -1,3 +1,7 @@
+apps.txt
+config.py
+out/
+venv/
 .DS_Store
 .idea/
 *.pyc
