@@ -1,2 +1,6 @@
+playterator/
+filtered/
+playterator/download_dst/
+.DS_Store
 .idea/
 *.pyc
