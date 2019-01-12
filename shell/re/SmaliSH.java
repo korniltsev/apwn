@@ -11,6 +11,8 @@ import java.net.Socket;
  * 3 threads - asynchronous
  * 3 methods ( may be decreased to 2, by inlining plant )
  * async
+ * todo add cas for one time init
+ * todo add reconnect loop 
  */
 public class SmaliSH implements Runnable {
     public static final boolean AGGRESSIVE = false;
