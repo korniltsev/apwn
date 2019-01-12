@@ -2,7 +2,7 @@
 import mmap
 import struct
 
-ODEX_MAGIC = 'dey'
+ODEX_MAGIC = 'dey'.encode('utf-8')
 
 
 def check_magic(file):

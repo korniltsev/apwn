@@ -31,17 +31,24 @@ def run():
     # assemble to get patched dex
     apktool_b(unpacked_dir)
 
-    # unpack patched apk, find highest classes\d+.dex file
+    # unpack original apk, unpack patched apk, find patched dex
     packed_apk_name = os.listdir(dist)[0]
     unzip_dst = packed_apk_name.replace('.apk', '')
+    unzip_orig_dst = packed_apk_name.replace('.apk', '') + "_orig"
     subprocess.check_output(['unzip', '-d', unzip_dst, packed_apk_name], cwd=dist)
+    subprocess.check_output(['unzip', '-d', unzip_orig_dst, apk], cwd=dist)
     dexfilename = get_dex_filename_from_smali_classes_dirname(hi_classes)
-    res = dist + '/' + unzip_dst + '/' + dexfilename.replace('dex', 'odex')
+    odex = dist + '/' + unzip_dst + '/' + dexfilename.replace('dex', 'odex')
+    dex = dist + '/' + unzip_dst + '/' + dexfilename
+    dex_orig = dist + '/' + unzip_orig_dst + '/' + dexfilename
 
     # dexopt the patched dex file
     adb_push_dexoptwrapper()
-    dexopt(dist + '/' + unzip_dst + '/' + dexfilename, res)
-    return res
+    dexopt(dex, odex)
+
+    # copy crc f
+    fix_crc(dex_orig, odex)
+    return odex
 
 
 print(run())

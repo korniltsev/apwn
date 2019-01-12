@@ -4,8 +4,15 @@ import subprocess
 import os
 import glob
 import tempfile
+import sys
 
 mydir = os.path.dirname(os.path.realpath(__file__))
+print(mydir)
+odexcrcpath = os.path.realpath(mydir + '/../odexcrc' )
+print (odexcrcpath)
+sys.path.append(odexcrcpath)
+import odexcrc # fixme
+
 ANDROID_HOME = os.environ['ANDROID_HOME']
 adb = ANDROID_HOME + 'platform-tools/adb'
 
@@ -92,6 +99,15 @@ def dexopt(dexfile, outOdexFile):
     subprocess.check_output(
         [adb, 'shell', '/data/local/tmp/dexopt_wrapper', '/data/local/tmp/dex.zip', '/data/local/tmp/ok.dex'])
     subprocess.check_output([adb, 'pull', '/data/local/tmp/ok.dex', outOdexFile])
+
+
+def fix_crc(dex, odex):
+    checksum = subprocess.check_output(['crc32', dex]).strip()
+    print('fix_crc crc32 = ', checksum, odex)
+    modWhen = "2100"  # this is probably checksum of bootclasspath
+    print('prev crc ', [hex(i) for i in odexcrc.get(odex)])
+    odexcrc.set(odex, int(modWhen, 16), int(checksum, 16))
+    print('prev crc ', [hex(i) for i in odexcrc.get(odex)])
 
 
 def apktool_b(dir):
