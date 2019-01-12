@@ -20,53 +20,80 @@ class Playterator:
 
         res = set()
         categories = self.server.browse()
-        for c in categories[:1]:
+        for c in categories:
             catId = c['catId']
             print catId
             subcats = self.server.list(catId)
             for s in subcats:
                 apps = self.server.list(catId, s, nb_results=str(n))
                 for a in apps:
-                    res.add(a['docId'])
+                    docid = a['docId']
+                    print '    ', docid
+                    res.add(docid)
 
         if not os.path.exists(dst):
             os.mkdir(dst)
 
         print len(res), "total"
+        for i in res:
+            print i
         self.download(dst, [i for i in res], functor)
 
     def download(self, dst, app_list, functor=None):
+        counter = 0
         for a in app_list:
-            sys.stdout.write("* " + a + " downloading\n")
+            counter+=1
+            sys.stdout.write("* " + str(counter) + " " + a + " downloading\n")
             sys.stdout.flush()
+
             try:
                 appdir = os.path.join(dst, a)
                 appfile = os.path.join(appdir, a + ".apk")
                 if not os.path.exists(appdir):
                     os.mkdir(appdir)
+                incremental_marker = appfile + ".downloaded"
+                incremental_marker_transform = appfile + ".transformed"
+                incremental_marker_failed = appfile + ".failed"
+                if os.path.exists(incremental_marker_failed):
+                    continue
+                if not os.path.exists(incremental_marker):
 
-                purchased_app = self.server.download(a)
-                dot = 0
-                with open(appfile, "w") as apk:
-                    for chunk in purchased_app['file']['data']:
-                        dot += 1
-                        sys.stdout.write(".")
-                        if dot % 98 == 0:
-                            sys.stdout.write("\n")
-                        sys.stdout.flush()
-                        apk.write(chunk)
+                    purchased_app = self.server.download(a)
+                    dot = 0
 
-                print "\ndone"
+                    with open(appfile, "w") as apk:
+                        for chunk in purchased_app['file']['data']:
+                            dot += 1
+                            if dot % 30 == 0:
+                                sys.stdout.write(".")
+                            if dot % 600 == 0:
+                                sys.stdout.write("\n")
+                            sys.stdout.flush()
+                            apk.write(chunk)
+                else:
+                    print a, 'already downloaded'
+
+                with open(incremental_marker, 'w') as f:
+                    f.write('downloaded')
+                print "\n", a, 'done'
                 if functor is not None:
-                    print "transforming"
-                    try:
-                        functor(appfile)
-                        print "done transforming"
-                    except Exception as e:
-                        print e
-                        print "failed transforming"
-            except:
-                print "failed downloading"
+                    if not os.path.exists(incremental_marker_transform):
+                        print "transforming", a
+                        try:
+                            functor(appfile)
+                            print "done transforming", a
+                        except Exception as e:
+                            print e
+                            print "failed transforming", a
+                        with open(incremental_marker_transform, 'w') as f:
+                            f.write('transformed')
+                    else:
+                        print 'already transformed', a
+            except Exception as e:
+                print e
+                print "failed downloading", a
+                with open(incremental_marker_failed, 'w') as f:
+                    f.write('failed')
 
 
 def transform_print(apk):
@@ -90,4 +117,4 @@ def extract_manifest_and_delete(apk_file):
 
 
 p = Playterator()
-p.playterate(n=1, functor=extract_manifest_and_delete)
+p.playterate(functor=extract_manifest_and_delete)
