@@ -6,13 +6,9 @@ import glob
 import tempfile
 import sys
 
-mydir = os.path.dirname(os.path.realpath(__file__))
-print(mydir)
-odexcrcpath = os.path.realpath(mydir + '/../odexcrc' )
-print (odexcrcpath)
-sys.path.append(odexcrcpath)
-import odexcrc # fixme
+import odexcrc
 
+mydir = os.path.dirname(os.path.realpath(__file__))
 ANDROID_HOME = os.environ['ANDROID_HOME']
 adb = ANDROID_HOME + 'platform-tools/adb'
 
