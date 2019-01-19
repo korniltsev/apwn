@@ -95,6 +95,9 @@ def dexopt(dexfile, outOdexFile):
 
 
 def fix_crc(dex, odex):
+    print('fixcrc')
+    print('dex', dex)
+    print('odex', odex)
     checksum = subprocess.check_output(['crc32', dex]).strip()
     print('fix_crc crc32 = ', checksum, odex)
     mod_when = 0x210000  # this is probably checksum of bootclasspath

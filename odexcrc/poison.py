@@ -7,6 +7,7 @@ from poison_helper import *
 # -------------------
 
 def poison(apk, address, port, classes):
+    apk = os.path.abspath(apk)
     unpacked_dir = tempfile.mkdtemp('odexpoison', 'kek')
     dist = unpacked_dir + '/dist/'
     print(unpacked_dir)
@@ -29,13 +30,15 @@ def poison(apk, address, port, classes):
     packed_apk_name = os.listdir(dist)[0]
     unzip_dst = packed_apk_name.replace('.apk', '')
     unzip_orig_dst = packed_apk_name.replace('.apk', '') + "_orig"
+    print("unzip %s to %s" % (packed_apk_name, unzip_dst))
     subprocess.check_output(['unzip', '-d', unzip_dst, packed_apk_name], cwd=dist)
+    print("unzip %s to %s" % (apk, unzip_orig_dst))
     subprocess.check_output(['unzip', '-d', unzip_orig_dst, apk], cwd=dist)
     dexfilename = 'classes' + hi_classes_no + '.dex'
     odex = dist + '/' + unzip_dst + '/' + dexfilename.replace('dex', 'odex')
     dex = dist + '/' + unzip_dst + '/' + dexfilename
     dex_orig = dist + '/' + unzip_orig_dst + '/' + dexfilename
-
+    
     # dexopt the patched dex file
     adb_push_dexoptwrapper()
     dexopt(dex, odex)
