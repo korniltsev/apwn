@@ -1,0 +1,33 @@
+/bin/
+/market/
+/gen/
+/target/
+/review/
+/obj/
+/libs/
+/out/
+/.classpath
+/.settings/
+/.externalToolBuilders/
+/.idea/
+**/*.iml
+/*.iml
+/classes/
+**/target
+**/.DS_Store
+/local.properties
+**/build/
+/build/
+/.gradle/
+/reports/
+/projectFilesBackup/.idea/
+.mainframer/
+/mainframer.sh
+remote_builder
+.externalNativeBuild/
+
+#Some garbage
+*.hprof
+
+#Some other garbage
+/captures/

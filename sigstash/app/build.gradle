@@ -1,0 +1,16 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "sig.stash"
+        minSdkVersion 21
+        targetSdkVersion 21
+        versionCode 1
+        versionName "0.1"
+    }
+}
+
+dependencies {
+    provided 'de.robv.android.xposed:api:82'
+}
